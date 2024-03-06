@@ -3,11 +3,13 @@ import geopandas as gpd
 import os
 import math
 
-gtfsFolder = r"C:\Users\svenk\Downloads\latesta"
-importPolygonFile = r"C:\Users\svenk\Downloads\latesta\cutPolygon.gpkg"
+gtfsFolder = r"C:\Users\sven\Downloads\latest"
+importPolygonFile = r"C:\Users\sven\Downloads\latest\cutPolygon.gpkg"
 keepIds = {"stop_id":[], "trip_id":[], "route_id":[], "agency_id":[]}
 cutCouples = [["stops", "stop_id"],["stop_times","stop_id"],["trips","trip_id"],["routes","route_id"],["agency","agency_id"]]
 
+
+# Function to cut the GTFS files by the import polygon
 def CutPointsByGeoPackage(importPolygonFile, gtfsFolder):
 
     importPolygon = gpd.read_file(importPolygonFile)
@@ -31,7 +33,6 @@ CutIdById("stop_id", "trip_id", "stop_times.txt", gtfsFolder)
 CutIdById("trip_id", "route_id", "trips.txt", gtfsFolder)
 CutIdById("trip_id", "service_id", "trips.txt", gtfsFolder)
 CutIdById("route_id", "agency_id", "routes.txt", gtfsFolder)
-print("Route ids:")
 df = pd.read_csv(rf"{gtfsFolder}\{'trips.txt'}", sep=",")
 for element in keepIds["route_id"]:
     dfFiltered = df[df["route_id"] == element]
@@ -40,7 +41,6 @@ for element in keepIds["route_id"]:
         if element not in keepIds["trip_id"]:
             keepIds["trip_id"].append(element)
 
-print("Trip ids:")
 
 df = pd.read_csv(rf"{gtfsFolder}\{'stop_times.txt'}", sep=",")
 for element in keepIds["trip_id"]:
@@ -59,6 +59,18 @@ cuttedFolder = gtfsFolder + "\cutted"
 os.makedirs(cuttedFolder, exist_ok=True)
 
 keepIds["stop_id"] =  [x for x in keepIds["stop_id"] if not math.isnan(x)]
+
+
+# Add Parents from routed Stations to Stop Ids
+stopsFile = pd.read_csv(rf"{gtfsFolder}\{'stops.txt'}", sep=",")
+for element in keepIds["stop_id"]:
+    stop = stopsFile[stopsFile["stop_id"] == element]
+    try:
+        parentStation = list(stop["parent_station"])[0]
+    except:
+        continue
+    if parentStation not in keepIds["stop_id"]:
+        keepIds["stop_id"].append(parentStation)
 
 for element in cutCouples:
     print(element)

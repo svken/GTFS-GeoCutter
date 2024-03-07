@@ -91,4 +91,5 @@ df.to_csv(f"{gtfsFolder}/cutted/stops.txt", sep = ",", index=False)
 
 #Field parent_station must be empty when location_type is 1.
 
+
 print("Done!")

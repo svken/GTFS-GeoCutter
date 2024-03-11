@@ -3,11 +3,11 @@ import geopandas as gpd
 import os
 import math
 
-gtfsFolder = r"C:\Users\sven\Downloads\latest"
-importPolygonFile = r"C:\Users\sven\Downloads\latest\cutPolygon.gpkg"
+gtfsFolder = r"C:\Users\svenk\Downloads\latesta"
+importPolygonFile = r"C:\Users\svenk\Downloads\latesta\cutPolygon.gpkg"
 keepIds = {"stop_id":[], "trip_id":[], "route_id":[], "agency_id":[]}
 cutCouples = [["stops", "stop_id"],["stop_times","stop_id"],["trips","trip_id"],["routes","route_id"],["agency","agency_id"]]
-
+print("Start!")
 
 # Function to cut the GTFS files by the import polygon
 def CutPointsByGeoPackage(importPolygonFile, gtfsFolder):
@@ -41,7 +41,6 @@ for element in keepIds["route_id"]:
         if element not in keepIds["trip_id"]:
             keepIds["trip_id"].append(element)
 
-
 df = pd.read_csv(rf"{gtfsFolder}\{'stop_times.txt'}", sep=",")
 for element in keepIds["trip_id"]:
     dfFiltered = df[df["trip_id"] == element]
@@ -60,7 +59,6 @@ os.makedirs(cuttedFolder, exist_ok=True)
 
 keepIds["stop_id"] =  [x for x in keepIds["stop_id"] if not math.isnan(x)]
 
-
 # Add Parents from routed Stations to Stop Ids
 stopsFile = pd.read_csv(rf"{gtfsFolder}\{'stops.txt'}", sep=",")
 for element in keepIds["stop_id"]:
@@ -72,24 +70,25 @@ for element in keepIds["stop_id"]:
     if parentStation not in keepIds["stop_id"]:
         keepIds["stop_id"].append(parentStation)
 
+
 for element in cutCouples:
     print(element)
     df = pd.read_csv(rf"{gtfsFolder}\{element[0]}.txt", sep=",")
     dfFiltered = df[df[element[1]].isin(keepIds[element[1]])]
+
     if element[0] == "stops":
         dfFiltered['location_type'] = dfFiltered['location_type'].fillna("0").astype(int)
-        dfFiltered['parent_station'] = dfFiltered['parent_station'].fillna("0").astype(int)
+        dfFiltered['parent_station'] = dfFiltered['parent_station'].fillna(math.nan).astype(int)
+
+        #dfFiltered.loc[dfFiltered['location_type'] == 1, 'parent_station'] = "a"
 
     if element[0] == "stop_times":
         dfFiltered['pickup_type'] = dfFiltered['pickup_type'].fillna("0").astype(int)    
     dfFiltered.to_csv(rf"{cuttedFolder}\{element[0]}.txt", index=False, sep = ",")
 
-df = pd.read_csv(f"{gtfsFolder}/cutted/stops.txt", sep = ",")
-df.loc[df['location_type'] == 1, 'parent_station'] = pd.NA
-df['parent_station'] = df['parent_station'].fillna("0").astype(int)    
-df.to_csv(f"{gtfsFolder}/cutted/stops.txt", sep = ",", index=False)
-
+#df.loc[df['location_type'] == 1, 'parent_station'] = pd.NA
+#df['parent_station'] = df['parent_station'].fillna("0").astype(int)    
+#df.to_csv(f"{gtfsFolder}/cutted/stops.txt", sep = ",", index=False)
 #Field parent_station must be empty when location_type is 1.
-
 
 print("Done!")

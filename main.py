@@ -3,8 +3,8 @@ import geopandas as gpd
 import os
 import math
 
-gtfsFolder = r"C:\Users\svenk\Downloads\latesta"
-importPolygonFile = r"C:\Users\svenk\Downloads\latesta\cutPolygon.gpkg"
+gtfsFolder = r"C:\Users\sven\Downloads\latest"
+importPolygonFile = r"C:\Users\sven\Downloads\latest\cutPolygon.gpkg"
 keepIds = {"stop_id":[], "trip_id":[], "route_id":[], "agency_id":[]}
 cutCouples = [["stops", "stop_id"],["stop_times","stop_id"],["trips","trip_id"],["routes","route_id"],["agency","agency_id"]]
 print("Start!")
@@ -78,7 +78,7 @@ for element in cutCouples:
 
     if element[0] == "stops":
         dfFiltered['location_type'] = dfFiltered['location_type'].fillna("0").astype(int)
-        dfFiltered['parent_station'] = dfFiltered['parent_station'].fillna(math.nan).astype(int)
+        #dfFiltered['parent_station'] = dfFiltered['parent_station'].fillna(math.nan).astype(int)
 
         #dfFiltered.loc[dfFiltered['location_type'] == 1, 'parent_station'] = "a"
 

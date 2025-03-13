@@ -3,6 +3,10 @@ import geopandas as gpd
 import os
 import math
 
+""" GTFS-GeoCutter is a Python script designed to extract a subset of a GTFS (General Transit Feed Specification) 
+dataset based on a geographic boundary.It preserves the relational integrity of the GTFS data while filtering 
+to include only transit information relevant to a specific geographic area."""
+
 gtfsFolder = r"C:\Users\svenk\Downloads\latesta"
 importPolygonFile = r"C:\Users\svenk\Downloads\latesta\cutPolygon.gpkg"
 keepIds = {"stop_id":[], "trip_id":[], "route_id":[], "agency_id":[]}
@@ -84,6 +88,5 @@ for element in cutCouples:
         dfFiltered['pickup_type'] = dfFiltered['pickup_type'].fillna("0").astype(int) 
 
     dfFiltered.to_csv(rf"{cuttedFolder}\{element[0]}.txt", index=False, sep = ",")
-
 
 print("Done!")
